@@ -1,23 +1,23 @@
 {
   "files": {
-    "main.css": "/swapGame/static/css/main.99a6fe12.chunk.css",
-    "main.js": "/swapGame/static/js/main.559d5b92.chunk.js",
-    "main.js.map": "/swapGame/static/js/main.559d5b92.chunk.js.map",
-    "runtime-main.js": "/swapGame/static/js/runtime-main.47bcdbec.js",
-    "runtime-main.js.map": "/swapGame/static/js/runtime-main.47bcdbec.js.map",
-    "static/js/2.fe0e50c8.chunk.js": "/swapGame/static/js/2.fe0e50c8.chunk.js",
-    "static/js/2.fe0e50c8.chunk.js.map": "/swapGame/static/js/2.fe0e50c8.chunk.js.map",
-    "static/js/3.94829fde.chunk.js": "/swapGame/static/js/3.94829fde.chunk.js",
-    "static/js/3.94829fde.chunk.js.map": "/swapGame/static/js/3.94829fde.chunk.js.map",
-    "index.html": "/swapGame/index.html",
-    "static/css/main.99a6fe12.chunk.css.map": "/swapGame/static/css/main.99a6fe12.chunk.css.map",
-    "static/js/2.fe0e50c8.chunk.js.LICENSE.txt": "/swapGame/static/js/2.fe0e50c8.chunk.js.LICENSE.txt",
-    "static/media/puzzle.css": "/swapGame/static/media/water.cdf23344.png"
+    "main.css": "/swap/static/css/main.ae731cca.chunk.css",
+    "main.js": "/swap/static/js/main.425a889b.chunk.js",
+    "main.js.map": "/swap/static/js/main.425a889b.chunk.js.map",
+    "runtime-main.js": "/swap/static/js/runtime-main.e60d51a8.js",
+    "runtime-main.js.map": "/swap/static/js/runtime-main.e60d51a8.js.map",
+    "static/js/2.a144db4d.chunk.js": "/swap/static/js/2.a144db4d.chunk.js",
+    "static/js/2.a144db4d.chunk.js.map": "/swap/static/js/2.a144db4d.chunk.js.map",
+    "static/js/3.a8f26e29.chunk.js": "/swap/static/js/3.a8f26e29.chunk.js",
+    "static/js/3.a8f26e29.chunk.js.map": "/swap/static/js/3.a8f26e29.chunk.js.map",
+    "index.html": "/swap/index.html",
+    "static/css/main.ae731cca.chunk.css.map": "/swap/static/css/main.ae731cca.chunk.css.map",
+    "static/js/2.a144db4d.chunk.js.LICENSE.txt": "/swap/static/js/2.a144db4d.chunk.js.LICENSE.txt",
+    "static/media/puzzle.css": "/swap/static/media/water.cdf23344.png"
   },
   "entrypoints": [
-    "static/js/runtime-main.47bcdbec.js",
-    "static/js/2.fe0e50c8.chunk.js",
-    "static/css/main.99a6fe12.chunk.css",
-    "static/js/main.559d5b92.chunk.js"
+    "static/js/runtime-main.e60d51a8.js",
+    "static/js/2.a144db4d.chunk.js",
+    "static/css/main.ae731cca.chunk.css",
+    "static/js/main.425a889b.chunk.js"
   ]
 }
