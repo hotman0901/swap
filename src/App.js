@@ -13,6 +13,7 @@ import wait from "waait";
 // grid[0][5], grid[1][5], grid[2][5], grid[3][5], grid[4][5], grid[5][5]
 // const container = null;
 function App() {
+  // x y 軸數量
   const grid_x_count = 6;
   const grid_y_count = 5;
 
@@ -22,23 +23,24 @@ function App() {
   let iconSize, // icon 長寬比
     grid_width, // 棋盤寬度
     grid_height, // 棋盤高度
-    active_icon, // 有按下的時候的物件
-    playAreaOffset,
-    lastCombo = 0,
-    disableMove = false;
+    active_icon, // 有按下的時候保存的物件
+    playAreaOffset, // 取出轉珠框框距離瀏覽器 top、left
+    lastCombo = 0, // combo 連續
+    disableMove = false; // 禁止移動
 
+  // 擺放轉珠數字用
   let grid = []; // 存放全部轉珠顏色的陣列數字（有移動的話也要跟著更新 grid）
 
   useEffect(() => {
-    // container = $(".container");
-    initGrid();
+    initGridItems();
     render();
     bindEvent();
     return () => {};
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 建立轉隨機陣列
-  function initGrid() {
+  function initGridItems() {
     // 放置二維陣列 （屬性陣列用）
     for (let x = 0; x < grid_x_count; x++) {
       grid[x] = [];
@@ -49,11 +51,12 @@ function App() {
     }
   }
 
-  // 隨機數字
+  // 產生隨機轉珠數字
   function getRandomElement() {
     return Math.floor(Math.random() * numElements);
   }
 
+  // 初始化畫面
   function render() {
     // 先算出畫面寬度可以放的珠珠大小
     // 畫面寬度除以要x幾顆
@@ -72,7 +75,6 @@ function App() {
     $(".play-area").css({
       width: grid_width,
       height: grid_height,
-      fontSize: iconSize,
     });
 
     // 取出轉珠框框距離瀏覽器 top、left 位置 用來絕對定位每一個珠珠用
@@ -83,25 +85,34 @@ function App() {
       for (let y = 0; y < grid_y_count; y++) {
         // 建立轉珠 icon 用 div
         // data-x data-y 用來記住原本的座標位置
-        const iconDiv = $(
-          '<div class="block" data-x="' + x + '" data-y="' + y + '"></div>'
-        );
+        const iconDiv = $(`<div class="block" data-x="${x}" data-y="${y}" />`);
+
+        // 用來給 img background
+        const imgId = `elem-${grid[x][y]}`;
 
         // 依序放位置
-        iconDiv.css({
-          left: x * iconSize + left, // 第幾個 icon 加上 離瀏覽器左邊位置
-          top: y * iconSize + top,
-          width: iconSize,
-          height: iconSize,
-        });
+        // 排序轉珠位置
+        // grid[0][0], grid[1][0], grid[2][0], grid[3][0], grid[4][0], grid[5][0]
+        // grid[0][1], grid[1][1], grid[2][1], grid[3][1], grid[4][1], grid[5][1]
+        // grid[0][2], grid[1][2], grid[2][2], grid[3][2], grid[4][2], grid[5][2]
+        // grid[0][3], grid[1][3], grid[2][3], grid[3][3], grid[4][3], grid[5][3]
+        // grid[0][4], grid[1][4], grid[2][4], grid[3][4], grid[4][4], grid[5][4]
+        // grid[0][5], grid[1][5], grid[2][5], grid[3][5], grid[4][5], grid[5][5]
+        iconDiv
+          .css({
+            left: x * iconSize + left, // 第幾個 icon 加上 離瀏覽器左邊位置
+            top: y * iconSize + top, // 第幾個 icon 加上 離瀏覽器上面位置
+            width: iconSize, // 轉珠尺寸
+            height: iconSize, // 轉珠尺寸
+          })
+          .addClass(imgId);
 
-        // 用來給img
-        iconDiv.addClass(`elem-${grid[x][y]}`);
         $(".play-area").append(iconDiv);
       }
     }
 
-    var comboDiv = $(".combo");
+    // combo div
+    const comboDiv = $(".combo");
     comboDiv
       .css({
         fontSize: iconSize * 0.6,
@@ -127,16 +138,15 @@ function App() {
 
   // 按下
   function onBlockDown(e) {
+    e.preventDefault();
     // 是否可以移動
-    // if (disableMove) {
-    //   return;
-    // }
+    if (disableMove) {
+      return;
+    }
 
     // 增加 css .active 主要是讓他 transition: none 這樣轉動動畫比較正常
-    const block = $(e.currentTarget);
-    block.addClass("active");
     // 將物件放到全域變數
-    active_icon = block;
+    active_icon = $(e.currentTarget).addClass("active");
   }
 
   // 移動
@@ -148,36 +158,40 @@ function App() {
     }
 
     // 目前滑鼠移動
-    let cursor_x = e.pageX;
-    let cursor_y = e.pageY;
+    const { pageX, pageY } = e;
+    let cursor_x = pageX;
+    let cursor_y = pageY;
 
     // 取不到值應該是移動端
     if (!cursor_x && !cursor_y) {
-      if (e.originalEvent.touches) {
+      const { touches, pageX: newX, pageY: newY } = e.originalEvent;
+      if (touches) {
         // touch
-        cursor_x = e.originalEvent.touches[0].pageX;
-        cursor_y = e.originalEvent.touches[0].pageY;
+        cursor_x = touches[0].pageX;
+        cursor_y = touches[0].pageY;
       } else {
         // pointer
-        cursor_x = e.originalEvent.pageX;
-        cursor_y = e.originalEvent.pageY;
+        cursor_x = newX;
+        cursor_y = newY;
       }
     }
 
-    // 會遇到圖片位置跑走必須偏移他
+    // 會遇到圖片位置跑走必須偏移他，道理跟 css transform translate 一樣
     const pointer_x = cursor_x - iconSize / 2;
     const pointer_y = cursor_y - iconSize / 2;
 
     // 利用目前滑鼠位置取出經過該元素的二維陣列 index
     const passiveLocation = getGridLocation(cursor_x, cursor_y);
 
+    // 交換位置
     swapLocation(
-      active_icon.attr("data-x"),
-      active_icon.attr("data-y"),
-      passiveLocation.x,
-      passiveLocation.y
+      active_icon.attr("data-x"), // 按下的原始位置
+      active_icon.attr("data-y"), // 按下的原始位置
+      passiveLocation.x, // 滑鼠目前位置
+      passiveLocation.y // 滑鼠目前位置
     );
 
+    // 讓圖片跟著滑鼠走
     active_icon.css({
       left: pointer_x,
       top: pointer_y,
@@ -210,9 +224,12 @@ function App() {
   }
 
   function checkBlocks() {
+    // 需要清除的陣列
     let clear = [];
     // 計算有無 clear 的轉珠
     let countClear = 0;
+
+    // 先產生  clear[[], [], [], [], []]
     for (let x = 0; x < grid_x_count; x++) {
       clear[x] = [];
     }
@@ -291,14 +308,14 @@ function App() {
     grid = clear;
 
     // 代表有要消除的連線
-    // if (countClear > 0) {
-    //   clearSection(false);
-    // } else {
-    //   // 隱影 combo
-    //   $(".combo").hide();
-    //   // 才可以執行 move
-    //   disableMove = false;
-    // }
+    if (countClear > 0) {
+      clearSection(false);
+    } else {
+      // 隱影 combo
+      $(".combo").hide();
+      // 才可以執行 move
+      disableMove = false;
+    }
   }
 
   // 清除元素
@@ -312,12 +329,12 @@ function App() {
           .text("Combo " + lastCombo + "!")
           .show();
       }
-      await wait(320);
+      await wait(300);
       // 移除屬性
       $(".block.flash").attr("class", "block");
     }
 
-    await wait((delay = delay ? 100 : 0));
+    await wait(delay ? 200 : 0);
 
     const exist = $(".block.blank").length > 0;
     if (exist) {
@@ -339,8 +356,8 @@ function App() {
 
   // 將目前畫面的空白的慢慢 swap 位置
   async function dropBlock() {
-    var dropped = false;
-    // step1. 先把有移除掉的空白往下填滿
+    let dropped = false;
+    // step1. 先把有移除掉的空白往下填滿（轉珠下面有空白的話就需要往下交換）
     for (let x = 0; x < grid_x_count; x++) {
       // grid[0][0], grid[1][0], grid[2][0], grid[3][0], grid[4][0], grid[5][0]
       // grid[0][1], grid[1][1], grid[2][1], grid[3][1], grid[4][1], grid[5][1]
@@ -353,24 +370,24 @@ function App() {
         if (grid[x][y] === "blank" && y > 0 && grid[x][y - 1] !== "blank") {
           // 上下調換
           swapLocation(x, y, x, y - 1);
+
           dropped = true;
         }
       }
     }
     if (dropped) {
-      // 往下降一格後需要 重新 loop 看還有沒有空白
-      await wait(20);
+      // 往下降一格後需要 重新不停 loop 直到轉珠下面沒有空白
+      await wait(50);
       dropBlock();
     } else {
       // 空白已經都留在最上面，這時候需要將空白亂數填入
-      await wait(20);
+      await wait(50);
       fillBlock();
     }
   }
 
   // 隨機填入
   async function fillBlock() {
-    // 先從最上面補，人然後再往下
     // grid[0][0], grid[1][0], grid[2][0], grid[3][0], grid[4][0], grid[5][0]
     // grid[0][1], grid[1][1], grid[2][1], grid[3][1], grid[4][1], grid[5][1]
     // grid[0][2], grid[1][2], grid[2][2], grid[3][2], grid[4][2], grid[5][2]
@@ -379,6 +396,7 @@ function App() {
     let fill = false;
     // 先看有無空白的
     for (let x = 0; x < grid_x_count; x++) {
+      // 先從最上面補，然後再往下掉
       const isBlank = grid[x][0] === "blank";
       if (isBlank) {
         // 隨機字
@@ -387,7 +405,7 @@ function App() {
         // 將 icon 塞入
         // 將 icon 先從最上面 超出地方進來
         $("[data-x=" + x + "][data-y=0]")
-          .css("top", -iconSize + playAreaOffset.top)
+          .css({ top: -iconSize + playAreaOffset.top, opacity: 0 })
           .addClass("elem-" + random);
         fill = true;
       }
@@ -395,8 +413,8 @@ function App() {
 
     // 如果有 blank 再重新執行 dropBlock
     if (fill) {
-      await wait(80);
-      $("[data-y=0]").css("top", playAreaOffset.top);
+      await wait(50);
+      $("[data-y=0]").css({ top: playAreaOffset.top, opacity: 1 });
       // 再重新執行 因為我們是從最上面開始補
       dropBlock();
     } else {
@@ -427,10 +445,10 @@ function App() {
       grid[x][y] = "blank"; // 原本是 數字 + blank
       elem.removeClass("blank").addClass("flash"); // 移除掉且增加閃爍屬性
       // 找自己臨兵位置，再重複 call 一次
-      findSection(x, y + 1, gridItem); // 上
-      findSection(x, y - 1, gridItem); // 下
-      findSection(x - 1, y, gridItem); // 左
-      findSection(x + 1, y, gridItem); // 右
+      findSection(x, y + 1, gridItem, false); // 上
+      findSection(x, y - 1, gridItem, false); // 下
+      findSection(x - 1, y, gridItem, false); // 左
+      findSection(x + 1, y, gridItem, false); // 右
     }
 
     // 繼續接著找還有無可以消除的3個以上的
@@ -456,33 +474,34 @@ function App() {
     // 5: 粉色
 
     // 原本的顏色
-    const tmp = grid[activeX][activeY];
-    // 交換位置
-    // 原本位置塞入新的位置
-    grid[activeX][activeY] = grid[passiveX][passiveY];
-    // 新的位置塞入移動原本的位置
-    grid[passiveX][passiveY] = tmp;
+    const activePos = grid[activeX][activeY];
+    // 交換的
+    const passivePos = grid[passiveX][passiveY];
 
+    // step1. 交換 grid 內容
+    // 原本位置塞入新的位置
+    grid[activeX][activeY] = passivePos;
+    // 新的位置塞入移動原本的位置
+    grid[passiveX][passiveY] = activePos;
+
+    // step2. 交換 data-x data-y
     // 交換 data-x data-y
-    var active = $("[data-x=" + activeX + "][data-y=" + activeY + "]");
-    var passive = $("[data-x=" + passiveX + "][data-y=" + passiveY + "]");
+    const active = $("[data-x=" + activeX + "][data-y=" + activeY + "]");
+    const passive = $("[data-x=" + passiveX + "][data-y=" + passiveY + "]");
 
     active.attr("data-x", passiveX).attr("data-y", passiveY);
     passive.attr("data-x", activeX).attr("data-y", activeY);
 
-    // 被換移到舊的
+    // 位置交換被換移到舊的
     passive.css({
       left: activeX * iconSize + playAreaOffset.left,
       top: activeY * iconSize + playAreaOffset.top,
     });
 
-    // if(grid[passiveX][passiveY] == 'blank') {
-    // 會有殘影
     active.css({
       left: passiveX * iconSize + playAreaOffset.left,
       top: passiveY * iconSize + playAreaOffset.top,
     });
-    // }
   }
 
   // 參數給 xy 座標，計算出在第幾行第幾列
